@@ -1,0 +1,14 @@
+# Core Week 2 environment — versions as verified installed on 2026-07-13 (EXP-002).
+# Python 3.11.3, CUDA 11.8, driver 592.27, RTX 3050 Ti Laptop (4 GB).
+# torch/torchvision installed from the cu118 index; do NOT let pip swap them for CPU wheels:
+#   pip install torch==2.7.1+cu118 torchvision==0.22.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+ultralytics>=8.3
+opencv-python==4.13.0.92
+numpy==2.4.4
+pandas==2.0.3
+pyyaml==6.0.3
+scikit-learn==1.8.0
+matplotlib==3.7.2
+tqdm==4.65.0

@@ -1,0 +1,32 @@
+{
+  "root": "data\\raw\\kitti",
+  "num_labels": 7481,
+  "expected_total": 7481,
+  "type_counts": {
+    "Car": 28742,
+    "Cyclist": 1627,
+    "DontCare": 11295,
+    "Misc": 973,
+    "Pedestrian": 4487,
+    "Person_sitting": 222,
+    "Tram": 511,
+    "Truck": 1094,
+    "Van": 2914
+  },
+  "mapped_types": [
+    "Car",
+    "Cyclist",
+    "Pedestrian",
+    "Person_sitting",
+    "Truck",
+    "Van"
+  ],
+  "excluded_types": [
+    "DontCare",
+    "Misc",
+    "Tram"
+  ],
+  "labels_only": true,
+  "ok": true,
+  "errors": []
+}

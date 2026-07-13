@@ -1,0 +1,7 @@
+# Optional export dependencies (Week 2 stretch — TensorRT policy in "week 2 plan.md").
+# Install only when attempting ONNX/TensorRT export; failures here are documented
+# as setup blockers, not debugged indefinitely.
+onnx
+onnxruntime-gpu
+# TensorRT: install per NVIDIA instructions for CUDA 11.8 on Windows;
+# pip wheel (if used): tensorrt

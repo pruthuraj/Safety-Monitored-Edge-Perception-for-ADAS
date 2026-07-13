@@ -1,6 +1,27 @@
 # Dataset Split Notes
 
-Status: Week 1 plan. Exact file lists + checksums recorded in Week 2 when data is downloaded.
+Status: Week 2 — KITTI splits generated and committed (EXP-002).
+
+## KITTI acquisition + split record (Week 2)
+
+- **Source:** KITTI object detection benchmark, official AWS mirror
+  (`s3.eu-central-1.amazonaws.com/avg-kitti/`), downloaded 2026-07-13.
+- **Files:** `data_object_label_2.zip` (5,601,213 bytes), `data_object_image_2.zip` (~12 GB).
+- **Location:** `data/raw/kitti/` (untracked).
+- **Validation:** `python -m src.dataset.validate_kitti --root data/raw/kitti --labels-only`
+  → 7481/7481 labels, zero unmapped types, report at `results/kitti_validation.json`.
+- **Label type counts:** Car 28742, Van 2914, Truck 1094, Pedestrian 4487,
+  Person_sitting 222, Cyclist 1627; excluded by policy: DontCare 11295, Misc 973, Tram 511.
+- **Split command:** `python -m src.dataset.make_splits --root data/raw/kitti --seed 42`
+- **Counts:** train 5237 / val 1122 / test 1122 (70/15/15 of 7481).
+- **Split file SHA-256** (committed under `configs/splits/`):
+  - train: `660d423f58e5ea66d0675f4034e035a59375940d47030b7ec7945997ddebca6c`
+  - val: `81c46ef86467fabccb36d45c3228aca9b913475a6d9f1238f49c08113716bd8f`
+  - test: `0496ab48e627053e5ff4ba059c23352e7bd40eaf8438f29f648053ba1b24cbba`
+- **Preprocessing:** YOLO conversion via `python -m src.dataset.kitti_to_yolo` — hardlinked
+  images, per-image-dimension normalized boxes, degenerate boxes (<1 px after clamping) dropped.
+- **Excluded frames:** none (all 7481 valid).
+- **INT8 calibration rule:** calibration subset drawn from `kitti-train` only, never val/test.
 
 ## Roles
 
@@ -26,6 +47,6 @@ Status: Week 1 plan. Exact file lists + checksums recorded in Week 2 when data i
 
 ## Open items
 
-- [ ] KITTI train/val/test ratios (proposal: 70/15/15 of the 7,481 labeled images)
-- [ ] BDD100K subset sizes (proposal: ~500 images/slice, balanced by attribute labels)
-- [ ] INT8 calibration set: subset of `kitti-train` (never val/test) — size TBD Week 2
+- [x] KITTI train/val/test ratios — 70/15/15 confirmed (5237/1122/1122), seed 42
+- [ ] BDD100K subset sizes (proposal: ~500 images/slice, balanced by attribute labels) — Week 4
+- [ ] INT8 calibration set: subset of `kitti-train` (never val/test) — size set when TRT INT8 attempted

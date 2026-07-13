@@ -28,3 +28,7 @@ Thumbs.db
 
 # Notebooks: exploration only — checkpoints excluded
 .ipynb_checkpoints/
+
+# claude
+.claude-flow/
+.claude/

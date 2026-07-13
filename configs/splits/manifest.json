@@ -1,0 +1,19 @@
+{
+  "seed": 42,
+  "total": 7481,
+  "ratios": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "counts": {
+    "train": 5237,
+    "val": 1122,
+    "test": 1122
+  },
+  "sha256": {
+    "train": "660d423f58e5ea66d0675f4034e035a59375940d47030b7ec7945997ddebca6c",
+    "val": "81c46ef86467fabccb36d45c3228aca9b913475a6d9f1238f49c08113716bd8f",
+    "test": "0496ab48e627053e5ff4ba059c23352e7bd40eaf8438f29f648053ba1b24cbba"
+  }
+}
