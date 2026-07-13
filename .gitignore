@@ -1,0 +1,30 @@
+# Data — never commit datasets
+data/
+*.png.lock
+
+# Model weights and engines
+*.pt
+*.onnx
+*.engine
+*.trt
+runs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Media outputs (tracked selectively via git add -f when final)
+demo/*.mp4
+demo/*.gif
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Notebooks: exploration only — checkpoints excluded
+.ipynb_checkpoints/
