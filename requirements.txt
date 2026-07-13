@@ -7,8 +7,10 @@ torchvision==0.22.1+cu118
 ultralytics>=8.3
 opencv-python==4.13.0.92
 numpy==2.4.4
-pandas==2.0.3
+# pandas/matplotlib upgraded 2026-07-13: 2.0.3/3.7.2 were NumPy-1.x builds,
+# broke under numpy 2.4.4 (ABI: "numpy.core.multiarray failed to import")
+pandas==3.0.3
 pyyaml==6.0.3
 scikit-learn==1.8.0
-matplotlib==3.7.2
+matplotlib==3.11.0
 tqdm==4.65.0

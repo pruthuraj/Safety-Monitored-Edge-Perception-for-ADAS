@@ -1,0 +1,37 @@
+{
+  "splits": {
+    "train": {
+      "images": 5237,
+      "boxes_per_class": {
+        "pedestrian": 3272,
+        "vehicle": 22963,
+        "cyclist": 1119
+      },
+      "excluded_boxes": 8976
+    },
+    "val": {
+      "images": 1122,
+      "boxes_per_class": {
+        "pedestrian": 679,
+        "vehicle": 5069,
+        "cyclist": 264
+      },
+      "excluded_boxes": 1969
+    },
+    "test": {
+      "images": 1122,
+      "boxes_per_class": {
+        "pedestrian": 757,
+        "vehicle": 4716,
+        "cyclist": 244
+      },
+      "excluded_boxes": 1837
+    }
+  },
+  "class_names": [
+    "pedestrian",
+    "vehicle",
+    "cyclist"
+  ],
+  "yaml": "configs\\kitti_yolov8.yaml"
+}

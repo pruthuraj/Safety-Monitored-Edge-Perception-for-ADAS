@@ -1,0 +1,2 @@
+date,experiment,backend,model,imgsz,seed,epochs,precision,recall,mAP50,mAP50_95,AP50_pedestrian,AP50_vehicle,AP50_cyclist,latency_ms_p50,latency_ms_p95,fps_mean,latency_n_images,split_train_sha256,split_val_sha256,hardware,torch,command
+2026-07-13,EXP-003-smoke,pytorch,runs\detect\smoke\weights\best.pt,640,42,1,0.0102,0.3977,0.0972,0.0606,0.0003,0.2909,0.0005,16.35,20.68,59.3,300,660d423f58e5,81c46ef86467,NVIDIA GeForce RTX 3050 Ti Laptop GPU,2.7.1+cu118,scripts/train_baseline.py --smoke
