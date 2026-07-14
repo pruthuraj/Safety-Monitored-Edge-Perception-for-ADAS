@@ -4,4 +4,4 @@ SR-02,TBD (monitor/scoring module),TBD,AUROC; FPR@95 per slice,TBD,results/ood_m
 SR-03,TBD (gating/state machine),TBD,deterministic transition tests pass,TBD,TBD,open
 SR-04,TBD (gating/state machine),TBD,deterministic transition tests pass,TBD,TBD,open
 SR-05,TBD (gating/logging),TBD,log completeness check,TBD,TBD,open
-SR-06,TBD (inference + monitor pipeline),TBD,latency p50/p95 vs 40 ms,TBD,results/latency_metrics.csv,open
+SR-06,scripts/train_baseline.py measure_latency (PyTorch backend; monitor pending),TBD,latency p50/p95 vs 40 ms,p50 17.91 ms / p95 20.63 ms (EXP-003; no monitor overhead yet),results/baseline_metrics.csv,partial
