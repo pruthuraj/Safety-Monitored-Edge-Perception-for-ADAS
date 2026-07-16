@@ -1,7 +1,21 @@
 # Optional export dependencies (Week 2 stretch — TensorRT policy in "week 2 plan.md").
 # Install only when attempting ONNX/TensorRT export; failures here are documented
 # as setup blockers, not debugged indefinitely.
-onnx
-onnxruntime-gpu
-# TensorRT: install per NVIDIA instructions for CUDA 11.8 on Windows;
-# pip wheel (if used): tensorrt
+#
+# Versions as verified working 2026-07-14 (EXP-004: ONNX + TensorRT FP16 engine built
+# and functional on RTX 3050 Ti, driver 592.27, Windows 11).
+onnx==1.21.0            # pinned by nvidia-modelopt (tensorrt dep); 1.22.0 also worked for export
+onnxruntime==1.27.0     # CPU — used only for PyTorch-vs-ONNX parity checks, never latency claims
+tensorrt==11.1.0.106
+#
+# WARNING (learned 2026-07-14): `pip install tensorrt` pulls nvidia-modelopt, which
+# requires torch>=2.8 and silently REPLACES the pinned torch 2.7.1+cu118 with a
+# CPU-only PyPI torch (2.13.0+cpu) — CUDA disappears and torchvision breaks
+# ("operator torchvision::nms does not exist"). After installing tensorrt, ALWAYS
+# restore the pins:
+#   pip install torch==2.7.1+cu118 torchvision==0.22.1+cu118 --index-url https://download.pytorch.org/whl/cu118 --force-reinstall --no-deps
+# nvidia-modelopt is only needed at engine-build time (FP16 AutoCast); the built
+# .engine runs fine with torch 2.7.1+cu118 afterwards.
+#
+# onnxruntime-gpu: NOT installed — pip upgrade fails on locked onnxruntime DLL
+# (WinError 5) and GPU ORT is unnecessary (latency evidence comes from TensorRT).

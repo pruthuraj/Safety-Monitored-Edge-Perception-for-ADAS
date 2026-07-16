@@ -63,3 +63,18 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** Val split: precision 0.8605, recall 0.7915, **mAP50 0.8588**, mAP50-95 0.5561. Per-class AP50: pedestrian 0.7492, vehicle 0.9476, cyclist 0.8796. Latency (PyTorch, 300 val images): **p50 17.91 ms, p95 20.63 ms**, 54.9 FPS — within the 40 ms budget (SR-06, partial evidence). Evidence: `results/baseline_metrics.csv` (EXP-003 row); weights `runs/detect/baseline/weights/best.pt` (untracked).
 - **Limitation:** Latency is PyTorch backend without monitor overhead — SR-06 must be re-verified with TensorRT engine + monitor in the loop. Pedestrian AP50 lowest of three classes (small objects). Test split untouched.
 - **Next step:** Stretch: ONNX export → TensorRT FP16 (EXP-004). Week 3: STPA/HARA, finalize SR-xx.
+
+### EXP-004 — ONNX export + TensorRT FP16 engine (Week 2 stretch)
+- **Date:** 2026-07-16
+- **Week:** 2
+- **What changed:** Exported EXP-003 `best.pt` to ONNX (opset 17/19, onnxslim), ran PyTorch-vs-ONNX parity check (20 val images, ORT CPU), built TensorRT FP16 engine (ModelOpt AutoCast, 225/231 nodes fp16), evaluated engine on full val split + latency.
+- **Why:** Week 2 stretch per plan policy: ONNX first → FP16 only if tooling clean. Tooling was clean.
+- **Command(s):**
+  ```
+  python scripts/export_trt.py --trt
+  python scripts/train_baseline.py --eval-only --weights runs/detect/baseline/weights/best.engine --experiment EXP-004
+  ```
+- **Environment:** tensorrt 11.1.0.106 (pip), onnx 1.21.0, onnxruntime 1.27.0 (CPU, parity only), torch 2.7.1+cu118, RTX 3050 Ti Laptop 4 GB, driver 592.27. See requirements-export.txt for the torch-clobber warning hit during install.
+- **Result:** TRT FP16 val: **mAP50 0.8564** (PyTorch: 0.8588, Δ −0.0024), mAP50-95 0.5584, AP50 ped/veh/cyc 0.7453/0.9473/0.8766. Latency (300 val images, end-to-end predict): **p50 16.90 ms, p95 18.01 ms**, 58.8 FPS; pure engine inference 2.6 ms/img (ultralytics val speed). Engine 8.5 MB vs 12.3 MB ONNX / 5.9 MB pt. Evidence: `results/baseline_metrics.csv` (EXP-004 row), `results/export_summary.json`. Parity PT-vs-ONNX: mean abs conf diff 0.020; det-count mismatches 10/20 attributed to preprocessing difference (PyTorch rect letterbox vs ONNX fixed 640×640), not export corruption.
+- **Limitation:** End-to-end latency dominated by Python pre/postprocess, so FP16 gain looks small (p50 17.9→16.9 ms) despite 2.6 ms pure inference; a C++/optimized pipeline would show the real speedup. `pip install tensorrt` replaced pinned cu118 torch with CPU build (restored; documented in requirements-export.txt). INT8 not attempted — needs calibration set from train split (Week 5 per PLAN.md). Monitor overhead still absent from SR-06 evidence.
+- **Next step:** Week 3 — STPA/HARA, finalize SR-xx wording. INT8 + calibration in TensorRT week.

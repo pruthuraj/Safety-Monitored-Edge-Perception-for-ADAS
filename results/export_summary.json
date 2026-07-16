@@ -1,0 +1,22 @@
+{
+  "date": "2026-07-14",
+  "experiment": "EXP-004",
+  "weights": "D:\\Pruthu\\cv projects\\research\\Safety-Monitored Edge Perception for ADAS\\runs\\detect\\baseline\\weights\\best.pt",
+  "imgsz": 640,
+  "command": "scripts/export_trt.py --trt",
+  "onnx": {
+    "path": "D:\\Pruthu\\cv projects\\research\\Safety-Monitored Edge Perception for ADAS\\runs\\detect\\baseline\\weights\\best.onnx",
+    "size_mb": 12.27
+  },
+  "parity_pt_vs_onnx": {
+    "images": 20,
+    "det_count_mismatches": 10,
+    "max_det_count_diff": 3,
+    "mean_abs_conf_diff": 0.020267,
+    "max_abs_conf_diff": 0.273218
+  },
+  "tensorrt_fp16": {
+    "path": "D:\\Pruthu\\cv projects\\research\\Safety-Monitored Edge Perception for ADAS\\runs\\detect\\baseline\\weights\\best.engine",
+    "size_mb": 8.5
+  }
+}

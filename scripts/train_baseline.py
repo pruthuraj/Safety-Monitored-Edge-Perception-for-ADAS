@@ -64,7 +64,8 @@ def main() -> int:
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--model", default="yolov8n.pt")
     ap.add_argument("--eval-only", action="store_true")
-    ap.add_argument("--weights", default=None, help="weights for --eval-only")
+    ap.add_argument("--weights", default=None, help="weights for --eval-only (.pt, .onnx, .engine)")
+    ap.add_argument("--experiment", default=None, help="experiment id override for the CSV row")
     args = ap.parse_args()
 
     from ultralytics import YOLO
@@ -100,11 +101,12 @@ def main() -> int:
 
     lat = measure_latency(model, REPO / "data" / "processed" / "kitti_yolo" / "images" / "val", args.imgsz)
 
+    backend = {".engine": "tensorrt_fp16", ".onnx": "onnxruntime"}.get(weights.suffix, "pytorch")
     manifest = json.loads(SPLIT_MANIFEST.read_text())
     row = {
         "date": date.today().isoformat(),
-        "experiment": "EXP-003" if not args.smoke else "EXP-003-smoke",
-        "backend": "pytorch",
+        "experiment": args.experiment or ("EXP-003-smoke" if args.smoke else "EXP-003"),
+        "backend": backend,
         "model": str(weights.relative_to(REPO)) if weights.is_absolute() else str(weights),
         "imgsz": args.imgsz,
         "seed": SEED,

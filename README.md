@@ -8,13 +8,13 @@ Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI) deployed via
 
 YOLOv8n, KITTI val split (1122 images), imgsz 640, seed 42, 50 epochs. Source: `results/baseline_metrics.csv`, `docs/experiment_log.md` (EXP-003), command `python scripts/train_baseline.py --epochs 50`.
 
-| Metric | Value |
-|---|---|
-| mAP50 / mAP50-95 | 0.859 / 0.556 |
-| AP50 pedestrian / vehicle / cyclist | 0.749 / 0.948 / 0.880 |
-| Latency p50 / p95 (PyTorch, RTX 3050 Ti) | 17.9 ms / 20.6 ms |
+| Metric | PyTorch (EXP-003) | TensorRT FP16 (EXP-004) |
+|---|---|---|
+| mAP50 / mAP50-95 | 0.859 / 0.556 | 0.856 / 0.558 |
+| AP50 pedestrian / vehicle / cyclist | 0.749 / 0.948 / 0.880 | 0.745 / 0.947 / 0.877 |
+| Latency p50 / p95 (RTX 3050 Ti) | 17.9 ms / 20.6 ms | 16.9 ms / 18.0 ms |
 
-Latency is PyTorch-backend inference without the runtime monitor; the 40 ms budget (SR-06) will be re-verified once TensorRT export and monitor are in the loop.
+Latency is end-to-end single-image predict without the runtime monitor; the 40 ms budget (SR-06) will be re-verified with the monitor in the loop. TensorRT FP16 export: `python scripts/export_trt.py --trt` (`results/export_summary.json`).
 
 ## Repository layout
 
