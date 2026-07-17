@@ -1,0 +1,35 @@
+{
+  "experiment": "EXP-010",
+  "date": "2026-07-17",
+  "seed": 42,
+  "n_frames": 300,
+  "subset_source": "configs/splits/test.txt (kitti-test, REPORT-ONLY; thresholds frozen from kitti-val in EXP-008)",
+  "subset_sha256": "454c5f80cc40e31cb0f33627b1643efccdd5539f85f0a21df28759240dae2298",
+  "corruptions": [
+    "fog",
+    "motion_blur",
+    "gaussian_noise",
+    "low_light",
+    "dead_pixels"
+  ],
+  "severities": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "backend": "tensorrt_fp16",
+  "thresholds": {
+    "method": "max_conf_score",
+    "q95": 0.186212,
+    "q99": 0.3727595999999983
+  },
+  "headline": {
+    "clean_mAP50": 0.8471,
+    "worst_condition": "fog:high",
+    "worst_mAP50": 0.0711,
+    "most_flagged_condition": "fog:high",
+    "most_flagged_nonnominal_fraction": 0.99,
+    "all_conditions_within_latency_budget": true
+  },
+  "command": "scripts/run_fault_injection.py"
+}

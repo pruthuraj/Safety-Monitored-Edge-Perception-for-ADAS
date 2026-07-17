@@ -160,3 +160,18 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** Gating scenario replay **7/7 pass** (`results/gating_tests.csv`). 300-frame KITTI-val run: all NOMINAL, zero false transitions; log completeness **15/15 checks pass** (`results/runtime_monitor_log.csv`, `results/monitor_log_check.csv`). Latency incl. monitor+logging (`results/monitor_latency_metrics.csv`): **TRT FP16 p50 14.61 / p95 17.20 ms (67.9 FPS)**; **PyTorch p50 15.68 / p95 17.50 ms (63.1 FPS)** — both under the 40 ms budget; monitor overhead vs EXP-003/004 detector-only figures is negligible (within run-to-run variance). Demo `demo/monitor_overlay.mp4` (133 frames: KITTI→night→rain→fog): NOMINAL on KITTI, FAIL_SAFE_REQUEST on night (score 1.0, zero detections) — stills verified. Full suite **60 passed**.
 - **Limitation:** Demo is illustrative only, not a metric source. Gating policy constants (3/2/10/5) are engineering choices, not tuned on data; sensitivity unexplored. KITTI-val run produced no DEGRADED episodes (expected on ID data) — negative evidence only; OOD transition behavior evidenced via BDD-night integration test and demo.
 - **Next step:** Week 7 — synthetic corruptions of kitti-test slices, fault injection vs monitor response; Week 8 — safety case (GSN/SOTIF) consuming this evidence.
+
+### EXP-010 — Fault injection and SR verification
+- **Date:** 2026-07-17
+- **Week:** 7
+- **What changed:** Added `src/dataset/corruptions.py` (fog, motion_blur, gaussian_noise, low_light, dead_pixels × low/medium/high; deterministic from frame-id+corruption+severity; OpenCV/NumPy only) and `scripts/run_fault_injection.py` (300-frame seeded kitti-test subset — report-only, thresholds frozen — run clean + 15 corruption conditions through the runtime monitor; in-memory corruption, nothing written to git). RuntimeMonitor accepts ndarray frames. 28 new tests incl. smoke integration. Wrote `safety/verification_report.md` (SR-by-SR narrative).
+- **Why:** SOTIF-style robustness evidence: does the monitor actually flag conditions that destroy detection quality (H-04/H-05), and where does it stay silent?
+- **Command(s):**
+  ```
+  python scripts/run_fault_injection.py
+  python -m pytest tests/ -q
+  ```
+- **Environment:** as EXP-006; TensorRT FP16 backend.
+- **Result:** Clean subset mAP50 0.8471, 98.3% NOMINAL. Monitor tracks severe degradation: **fog:high mAP50 0.071 → 99% flagged non-NOMINAL**; blur:high 0.251 → 78% FSR; noise:high 0.365 → 77% FSR. **Blind spot found and documented: low_light:high mAP50 0.689 (−19%) with monitor 97.7% NOMINAL**; dead_pixels:medium similar — frame-level max-confidence misses silent recall erosion. All 16 conditions within 40 ms p95 budget (max 31.2 ms). Evidence: `results/fault_injection_metrics.csv`, `results/fault_injection_monitor_log.csv` (4800 rows), `results/fault_injection_summary.json`, `results/fault_injection_curves.png`. SR-01..SR-06 all **verified** per `safety/verification_report.md` with explicit limitations.
+- **Limitation:** Corruptions are plausibility models, not physics-validated (fog = uniform haze). Low-light blind spot is a documented SOTIF unknown-unsafe residual; candidate mitigations (detection-count plausibility, temporal checks, Mahalanobis) out of MVP scope. Standalone AP implementation not comparable to ultralytics numbers across tools.
+- **Next step:** Week 8 — GSN safety case + SOTIF argument consuming EXP-006..010 evidence; ISO/PAS 8800 alignment table.

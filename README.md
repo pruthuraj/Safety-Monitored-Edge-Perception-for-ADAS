@@ -2,7 +2,7 @@
 
 Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI) deployed via TensorRT FP16/INT8, supervised by a calibrated-confidence + OOD runtime monitor that gates output through `NOMINAL → DEGRADED → FAIL_SAFE_REQUEST` states — with STPA/HARA, GSN safety case, and full requirement-to-evidence traceability.
 
-> Status: Week 6 of 10 — runtime gating live: 3-state monitor (NOMINAL/DEGRADED/FAIL_SAFE_REQUEST) on frozen Q95/Q99 thresholds, 7/7 gating scenarios pass, perception+monitor p95 17.2 ms TRT / 17.5 ms PyTorch vs 40 ms budget, SR-03..06 verified (EXP-009). Night OOD AUROC 0.98 (EXP-007); calibration ECE 0.081→0.039 (EXP-006). Demo: `demo/monitor_overlay.mp4`. See [PLAN.md](PLAN.md) and [docs/project_spec.md](docs/project_spec.md).
+> Status: Week 7 of 10 — SR-01..06 all verified ([safety/verification_report.md](safety/verification_report.md)). Fault injection (EXP-010): monitor flags 99% of frames under severe fog as mAP collapses 0.85→0.07; documented blind spot — low-light recall erosion (mAP −19%) passes unflagged. Runtime gating p95 17.2 ms TRT vs 40 ms budget (EXP-009); night OOD AUROC 0.98 (EXP-007). Demo: `demo/monitor_overlay.mp4`. See [PLAN.md](PLAN.md) and [docs/project_spec.md](docs/project_spec.md).
 
 ## Baseline results (EXP-003)
 
