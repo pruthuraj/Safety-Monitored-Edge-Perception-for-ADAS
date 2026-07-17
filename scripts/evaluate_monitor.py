@@ -1,12 +1,17 @@
-"""evaluate_monitor: calibration + OOD monitor evidence (Week 4, EXP-006/007).
+"""evaluate_monitor: calibration + OOD monitor evidence (Weeks 4-5, EXP-006/007/008).
 
 Modes:
-  --calibrate    fit temperature on kitti-val calibration-fit subset, report
-                 ECE before/after on the calibration-report subset (SR-01)
-  --bdd-slices   generate deterministic BDD100K slice files (configs/splits/)
-  --ood          score KITTI-val report subset vs BDD slices, export
-                 AUROC / FPR@95 per slice and method (SR-02)
-  (default)      all of the above, in order
+  --calibrate       fit temperature on kitti-val calibration-fit subset, report
+                    ECE before/after on the calibration-report subset (SR-01)
+  --bdd-slices      generate deterministic BDD100K slice files (configs/splits/)
+  --ood             score KITTI-val report subset vs BDD slices, export
+                    AUROC / FPR@95 per slice and method (SR-02)
+  --thresholds      freeze Q95/Q99 thresholds from kitti-val report scores only
+                    and select the primary monitor score (Week 5, EXP-008)
+  --risk-coverage   sweep thresholds on kitti-val report subset: coverage vs
+                    accepted-frame detection quality; BDD coverage at frozen
+                    thresholds (Week 5, EXP-008)
+  (default)         all of the above, in order
 
 Design notes:
 - kitti-val is split 50/50 into calibration-fit / calibration-report with
@@ -49,6 +54,8 @@ from src.monitor.calibration import (
     reliability_bins,
 )
 from src.monitor.scoring import auroc, energy_score, fpr_at_tpr, max_conf_score
+from src.monitor.thresholds import coverage_at, quantile_thresholds
+from src.monitor.detection_metrics import mean_ap, mean_ap_50_95, precision_recall
 from src.dataset.bdd100k_slices import SLICE_RULES, write_slices
 
 SEED = 42
@@ -372,18 +379,211 @@ def run_ood(model, weights: Path) -> list[dict]:
     return metrics_rows
 
 
+METHODS = ("max_conf_score", "energy_score")
+MATERIALITY_MARGIN = 0.01  # energy must beat max-conf mean AUROC by this to become primary
+
+
+def read_scores_csv(path: Path) -> list[dict]:
+    if not path.exists():
+        raise SystemExit(f"missing {path}; run --ood first")
+    with path.open(newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def run_thresholds() -> dict:
+    """Freeze Q95/Q99 from kitti-val report scores; select primary method."""
+    id_rows = read_scores_csv(RESULTS / "monitor_scores_kitti_val.csv")
+    ood_rows = read_scores_csv(RESULTS / "ood_metrics.csv")
+
+    thresholds = {
+        m: quantile_thresholds(np.array([float(r[m]) for r in id_rows])) for m in METHODS
+    }
+
+    # primary selection: mean AUROC over true OOD slices (transfer control excluded);
+    # energy wins only if materially better, else simpler max-conf (plan policy)
+    mean_auroc = {}
+    for m in METHODS:
+        vals = [
+            float(r["auroc"])
+            for r in ood_rows
+            if r["method"] == m and r["transfer_control"] == "False"
+        ]
+        mean_auroc[m] = round(float(np.mean(vals)), 4)
+    energy_gain = mean_auroc["energy_score"] - mean_auroc["max_conf_score"]
+    primary = "energy_score" if energy_gain >= MATERIALITY_MARGIN else "max_conf_score"
+
+    out = {
+        "experiment": "EXP-008",
+        "date": date.today().isoformat(),
+        "seed": SEED,
+        "source_scores": "results/monitor_scores_kitti_val.csv (kitti-val calibration-report subset only)",
+        "policy": "Q95=DEGRADED candidate, Q99=FAIL_SAFE_REQUEST candidate; score>threshold = suspect; thresholds from KITTI validation only, never BDD/kitti-test",
+        "n_id_frames": len(id_rows),
+        "thresholds": thresholds,
+        "mean_ood_auroc_excl_transfer_control": mean_auroc,
+        "primary_method": primary,
+        "primary_justification": (
+            f"energy mean AUROC gain {energy_gain:+.4f} vs max-conf is below the "
+            f"{MATERIALITY_MARGIN} materiality margin; max_conf_score chosen as simpler "
+            "and easier to argue in the safety case"
+            if primary == "max_conf_score"
+            else f"energy mean AUROC gain {energy_gain:+.4f} exceeds the {MATERIALITY_MARGIN} materiality margin"
+        ),
+    }
+    RESULTS.mkdir(exist_ok=True)
+    (RESULTS / "monitor_thresholds.json").write_text(json.dumps(out, indent=2))
+    print(json.dumps(out, indent=2))
+    print(f"wrote {RESULTS / 'monitor_thresholds.json'}")
+    return out
+
+
+def collect_frames_with_gt(model, ids: list[str]) -> list[dict]:
+    frames = predict_frames(model, [KITTI_IMAGES / f"{i}.png" for i in ids])
+    for i, fr in zip(ids, frames):
+        fr["gt_boxes"], fr["gt_classes"] = load_gt(i, fr["orig_w"], fr["orig_h"])
+    return frames
+
+
+def run_risk_coverage(model, weights: Path) -> list[dict]:
+    thr_path = RESULTS / "monitor_thresholds.json"
+    if not thr_path.exists():
+        raise SystemExit(f"missing {thr_path}; run --thresholds first")
+    frozen = json.loads(thr_path.read_text())
+
+    _, report_ids = calib_subsets()
+    print(f"risk-coverage: kitti-val report subset ({len(report_ids)} images)")
+    frames = collect_frames_with_gt(model, report_ids)
+    scores = {
+        "max_conf_score": np.array([max_conf_score(fr["confs"]) for fr in frames]),
+        "energy_score": np.array([energy_score(fr["confs"]) for fr in frames]),
+    }
+
+    rows = []
+    sweep_quantiles = [round(0.05 * i, 2) for i in range(1, 21)]  # 0.05 .. 1.00
+    for m in METHODS:
+        named = {f"sweep-q{int(q * 100):03d}": float(np.quantile(scores[m], q)) for q in sweep_quantiles}
+        named["frozen-q95"] = frozen["thresholds"][m]["q95"]
+        named["frozen-q99"] = frozen["thresholds"][m]["q99"]
+        for label, thr in sorted(named.items(), key=lambda kv: kv[1]):
+            accepted = [fr for fr, s in zip(frames, scores[m]) if s <= thr]
+            row = {
+                "date": date.today().isoformat(),
+                "experiment": "EXP-008",
+                "slice": "kitti-val-report",
+                "method": m,
+                "threshold_label": label,
+                "threshold": round(float(thr), 6),
+                "n_frames": len(frames),
+                "n_accepted": len(accepted),
+                "accepted_fraction": round(len(accepted) / len(frames), 4),
+                "rejected_fraction": round(1.0 - len(accepted) / len(frames), 4),
+                "accepted_mAP50": "",
+                "accepted_mAP50_95": "",
+                "accepted_precision": "",
+                "accepted_recall": "",
+            }
+            if accepted:
+                p, r = precision_recall(accepted)
+                row.update(
+                    accepted_mAP50=round(mean_ap(accepted), 4),
+                    accepted_mAP50_95=round(mean_ap_50_95(accepted), 4),
+                    accepted_precision=round(p, 4),
+                    accepted_recall=round(r, 4),
+                )
+            rows.append(row)
+
+    # BDD slices: attribute labels only, no detection GT -> coverage/rejection only
+    bdd_rows = read_scores_csv(RESULTS / "monitor_scores_bdd100k.csv")
+    for name in SLICE_RULES:
+        for m in METHODS:
+            s = np.array([float(r[m]) for r in bdd_rows if r["slice"] == name])
+            if s.size == 0:
+                continue
+            for label in ("frozen-q95", "frozen-q99"):
+                thr = frozen["thresholds"][m][label.split("-")[1]]
+                cov = coverage_at(s, thr)
+                rows.append(
+                    {
+                        "date": date.today().isoformat(),
+                        "experiment": "EXP-008",
+                        "slice": name,
+                        "method": m,
+                        "threshold_label": label,
+                        "threshold": round(float(thr), 6),
+                        "n_frames": int(s.size),
+                        "n_accepted": int(round(cov * s.size)),
+                        "accepted_fraction": round(cov, 4),
+                        "rejected_fraction": round(1.0 - cov, 4),
+                        "accepted_mAP50": "",
+                        "accepted_mAP50_95": "",
+                        "accepted_precision": "",
+                        "accepted_recall": "",
+                    }
+                )
+
+    write_rows_csv(RESULTS / "risk_coverage.csv", rows)
+    plot_risk_coverage(rows, frozen)
+    print(f"wrote {RESULTS / 'risk_coverage.csv'}")
+    return rows
+
+
+def plot_risk_coverage(rows: list[dict], frozen: dict) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8))
+    for ax, metric, ylabel in (
+        (axes[0], "accepted_mAP50", "accepted-frame mAP50"),
+        (axes[1], "accepted_recall", "accepted-frame recall (conf>=0.25)"),
+    ):
+        for m in METHODS:
+            pts = sorted(
+                (
+                    (float(r["accepted_fraction"]), float(r[metric]))
+                    for r in rows
+                    if r["slice"] == "kitti-val-report" and r["method"] == m and r[metric] != ""
+                ),
+            )
+            ax.plot([p[0] for p in pts], [p[1] for p in pts], marker="o", ms=3, label=m)
+            for label, style in (("frozen-q95", ":"), ("frozen-q99", "--")):
+                fr_row = next(
+                    r
+                    for r in rows
+                    if r["slice"] == "kitti-val-report"
+                    and r["method"] == m
+                    and r["threshold_label"] == label
+                )
+                ax.axvline(float(fr_row["accepted_fraction"]), linestyle=style, alpha=0.4)
+        ax.set_xlabel("coverage (accepted fraction)")
+        ax.set_ylabel(ylabel)
+        ax.legend(fontsize=8)
+        ax.set_title(f"{ylabel} vs coverage — kitti-val report subset")
+    fig.suptitle(
+        f"Risk-coverage (primary: {frozen['primary_method']}; dotted=Q95, dashed=Q99)", fontsize=10
+    )
+    fig.tight_layout()
+    fig.savefig(RESULTS / "risk_coverage.png", dpi=150)
+    plt.close(fig)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--calibrate", action="store_true")
     ap.add_argument("--bdd-slices", action="store_true")
     ap.add_argument("--ood", action="store_true")
+    ap.add_argument("--thresholds", action="store_true")
+    ap.add_argument("--risk-coverage", action="store_true")
     ap.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS)
     args = ap.parse_args()
 
-    run_all = not (args.calibrate or args.bdd_slices or args.ood)
+    run_all = not (
+        args.calibrate or args.bdd_slices or args.ood or args.thresholds or args.risk_coverage
+    )
 
     model = None
-    if run_all or args.calibrate or args.ood:
+    if run_all or args.calibrate or args.ood or args.risk_coverage:
         from ultralytics import YOLO
 
         model = YOLO(str(args.weights))
@@ -394,6 +594,10 @@ def main() -> int:
         run_bdd_slices()
     if run_all or args.ood:
         run_ood(model, args.weights)
+    if run_all or args.thresholds:
+        run_thresholds()
+    if run_all or args.risk_coverage:
+        run_risk_coverage(model, args.weights)
     return 0
 
 

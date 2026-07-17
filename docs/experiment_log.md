@@ -129,3 +129,18 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
   Score distributions show large no-detection mass on night/rain (score spike at max) — detector fails silently on OOD, which is precisely the H-04 mechanism the monitor flags. SR-02 acceptance met (AUROC+FPR@95 per slice, both methods compared). Evidence: `results/ood_metrics.csv`, `results/monitor_scores_kitti_val.csv`, `results/monitor_scores_bdd100k.csv`, `results/ood_score_distributions.png`, `results/ood_roc_curves.png`.
 - **Limitation:** Fog slice n=13 (all available in official val) — metrics unstable, report-only. Clear-day transfer control shows AUROC ~0.72-0.76: KITTI→BDD camera/scene shift is detectable even in-ODD, so thresholds must come from KITTI val quantiles, not BDD separation. Energy score no better than max-conf baseline at this granularity (post-NMS proxy). Images/labels from HF mirrors, not the offline official server — provenance recorded in `docs/dataset_splits.md`.
 - **Next step:** Week 5-6 — Q95/Q99 thresholds from kitti-val score quantiles, state machine + gating (SR-03/SR-04), logging (SR-05), monitor latency overhead for SR-06.
+
+### EXP-008 — Monitor thresholds and risk-coverage
+- **Date:** 2026-07-17
+- **Week:** 5
+- **What changed:** Added `src/monitor/thresholds.py` (Q95/Q99 quantile thresholds, coverage), `src/monitor/detection_metrics.py` (standalone VOC-style AP50/AP50-95, micro precision/recall over frame subsets), and `scripts/evaluate_monitor.py --thresholds` / `--risk-coverage`. 10 new tests (`tests/test_thresholds_risk.py`). Weekly plan notes added to `.gitignore`.
+- **Why:** Freeze validation-only gating thresholds and quantify risk removed by rejecting suspect frames — the evidence Week 6 SR-03/SR-04 gating builds on.
+- **Command(s):**
+  ```
+  python scripts/evaluate_monitor.py --thresholds
+  python scripts/evaluate_monitor.py --risk-coverage
+  ```
+- **Environment:** as EXP-006.
+- **Result:** **Primary monitor score: `max_conf_score`** — energy proxy mean OOD AUROC 0.913 vs 0.928 (gain −0.015, below +0.01 materiality margin; simpler score wins per plan policy). Frozen thresholds (kitti-val report subset, 561 frames, seed 42): max-conf **Q95 = 0.1862, Q99 = 0.3728**; energy Q95 = −1.594, Q99 = −1.149 (`results/monitor_thresholds.json`). Risk-coverage (kitti-val): Q95 keeps 94.8% coverage at mAP50 0.854 (vs 0.850 full), recall ~0.90 flat. BDD coverage at frozen max-conf Q95: **night 6.0%** accepted, rain 36.0%, fog 23.1%, clear-day control 68.0% — monitor rejects the bulk of out-of-ODD frames while keeping ~95% of ID. Evidence: `results/risk_coverage.csv`, `results/risk_coverage.png`.
+- **Limitation:** Accepted-frame mAP50 does not rise much at lower coverage — frame-level max-conf ranks frames by easiest detection, not scene difficulty; the risk-removal value is OOD rejection, not ID mAP gain (stated honestly). BDD rows are coverage-only (attribute labels, no detection GT). Thresholds frozen against PyTorch-backend scores; re-check under TensorRT backend when gating is integrated.
+- **Next step:** Week 6 — state machine (`NOMINAL`/`DEGRADED`/`FAIL_SAFE_REQUEST`) on sustained Q95/Q99 breaches (SR-03/SR-04), per-frame logging (SR-05), monitor latency overhead (SR-06).

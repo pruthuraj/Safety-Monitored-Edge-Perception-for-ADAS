@@ -1,0 +1,24 @@
+{
+  "experiment": "EXP-008",
+  "date": "2026-07-17",
+  "seed": 42,
+  "source_scores": "results/monitor_scores_kitti_val.csv (kitti-val calibration-report subset only)",
+  "policy": "Q95=DEGRADED candidate, Q99=FAIL_SAFE_REQUEST candidate; score>threshold = suspect; thresholds from KITTI validation only, never BDD/kitti-test",
+  "n_id_frames": 561,
+  "thresholds": {
+    "max_conf_score": {
+      "q95": 0.186212,
+      "q99": 0.3727595999999983
+    },
+    "energy_score": {
+      "q95": -1.593965,
+      "q99": -1.1490704000000047
+    }
+  },
+  "mean_ood_auroc_excl_transfer_control": {
+    "max_conf_score": 0.928,
+    "energy_score": 0.9127
+  },
+  "primary_method": "max_conf_score",
+  "primary_justification": "energy mean AUROC gain -0.0153 vs max-conf is below the 0.01 materiality margin; max_conf_score chosen as simpler and easier to argue in the safety case"
+}

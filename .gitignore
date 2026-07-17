@@ -32,3 +32,6 @@ Thumbs.db
 # claude
 .claude-flow/
 .claude/
+
+# Weekly planning notes (working documents, not deliverables)
+week *.md

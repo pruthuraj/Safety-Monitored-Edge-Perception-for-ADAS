@@ -2,7 +2,7 @@
 
 Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI) deployed via TensorRT FP16/INT8, supervised by a calibrated-confidence + OOD runtime monitor that gates output through `NOMINAL → DEGRADED → FAIL_SAFE_REQUEST` states — with STPA/HARA, GSN safety case, and full requirement-to-evidence traceability.
 
-> Status: Week 4 of 10 — monitor evidence MVP: temperature calibration ECE 0.081→0.039 (EXP-006), OOD scoring vs BDD100K slices, night AUROC 0.98 (EXP-007). See [PLAN.md](PLAN.md) for the execution plan and [docs/project_spec.md](docs/project_spec.md) for item definition, ODD, assumptions, and hazards.
+> Status: Week 5 of 10 — thresholds frozen from validation only: primary score max-conf, Q95/Q99 = 0.186/0.373; at Q95 the monitor keeps 94.8% of KITTI-val while accepting only 6% of BDD-night (EXP-008). Calibration ECE 0.081→0.039 (EXP-006); night OOD AUROC 0.98 (EXP-007). See [PLAN.md](PLAN.md) and [docs/project_spec.md](docs/project_spec.md).
 
 ## Baseline results (EXP-003)
 
