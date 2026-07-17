@@ -186,3 +186,18 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** All 24 evidence paths resolve; SR-01..06 each link to evidence; no unqualified "certified/ISO-compliant/proven safe" claims; low-light residual present in safety case, SOTIF argument, and mapping gaps; 88 tests still pass.
 - **Limitation:** Educational-depth safety case; no independent assessment; ISO/PAS 8800 mapped by public-domain theme names, standard text not licensed.
 - **Next step:** Week 9-10 — paper/report assets (`build_report_assets`), README final tables, CV/portfolio material.
+
+### EXP-012 — Report assets, paper draft, portfolio README
+- **Date:** 2026-07-17
+- **Week:** 9
+- **What changed:** Added `scripts/build_report_assets.py` (reads results CSVs/JSON only → `results/report_summary.json` with per-number source files, `paper/tables.md` with Tables 1-6, `demo/monitor_overlay.gif` subsampled from the demo mp4; verifies figure inventory). Wrote `paper/main.md` — IEEE-style draft (abstract, intro, related work, system, monitor design, six-part evaluation, safety case/SOTIF, limitations, conclusion, 12 refs). Rewrote `README.md` portfolio-grade: architecture Mermaid, demo GIF, GSN figure, key-metrics tables, full reproduction command chain, limitations.
+- **Why:** Week 9 deliverable per PLAN.md; also implements the `build_report_assets` standard entry point.
+- **Command(s):**
+  ```
+  python scripts/build_report_assets.py
+  python -m pytest tests/ -q
+  ```
+- **Environment:** n/a (documentation + asset generation; no training/inference)
+- **Result:** 14-point claims audit: every headline number in README/paper matches `report_summary.json` (which records its source CSV); no unqualified certified/ISO-compliant/proven-safe phrasing; all referenced files exist; 88 tests pass.
+- **Limitation:** Paper is a markdown draft — IEEE two-column PDF (`paper/main.pdf`) is Week 10 packaging. GIF is 4.9 MiB (README load weight). Claims audit is regex-based spot-check of headline numbers, not exhaustive.
+- **Next step:** Week 10 — 60-90 s demo cut, paper PDF, final environment freeze, CV bullet from real values.

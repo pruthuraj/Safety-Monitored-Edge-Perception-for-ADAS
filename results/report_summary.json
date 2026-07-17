@@ -1,0 +1,88 @@
+{
+  "generated": "2026-07-17",
+  "generator": "scripts/build_report_assets.py",
+  "sources": {
+    "baseline": "results/baseline_metrics.csv",
+    "calibration": "results/calibration_metrics.csv",
+    "ood": "results/ood_metrics.csv",
+    "thresholds": "results/monitor_thresholds.json",
+    "risk_coverage": "results/risk_coverage.csv",
+    "latency": "results/monitor_latency_metrics.csv",
+    "fault_injection": "results/fault_injection_metrics.csv"
+  },
+  "baseline": {
+    "pytorch_mAP50": 0.8588,
+    "pytorch_mAP50_95": 0.5561,
+    "trt_fp16_mAP50": 0.8564,
+    "quantization_delta_mAP50": -0.0024,
+    "per_class_AP50_pytorch": {
+      "pedestrian": 0.7492,
+      "vehicle": 0.9476,
+      "cyclist": 0.8796
+    }
+  },
+  "calibration": {
+    "temperature": 0.6003,
+    "ece_before": 0.0812,
+    "ece_after": 0.039
+  },
+  "ood_max_conf": {
+    "bdd-night": {
+      "auroc": 0.9819,
+      "fpr_at_95tpr": 0.1123
+    },
+    "bdd-rain": {
+      "auroc": 0.8759,
+      "fpr_at_95tpr": 0.5365
+    },
+    "bdd-fog": {
+      "auroc": 0.9262,
+      "fpr_at_95tpr": 0.4189
+    },
+    "bdd-clear-day": {
+      "auroc": 0.7578,
+      "fpr_at_95tpr": 0.6239
+    }
+  },
+  "thresholds": {
+    "primary_method": "max_conf_score",
+    "q95": 0.186212,
+    "q99": 0.3727595999999983
+  },
+  "risk_coverage_at_q95": {
+    "kitti_coverage": 0.9483,
+    "kitti_accepted_mAP50": 0.8542,
+    "bdd_night_coverage": 0.06,
+    "bdd_rain_coverage": 0.36,
+    "bdd_fog_coverage": 0.2308,
+    "bdd_clear_day_coverage": 0.68
+  },
+  "latency_full_loop": {
+    "tensorrt_fp16": {
+      "p50": 14.61,
+      "p95": 17.2,
+      "fps": 67.9
+    },
+    "pytorch": {
+      "p50": 15.68,
+      "p95": 17.5,
+      "fps": 63.1
+    }
+  },
+  "fault_injection": {
+    "clean_mAP50": 0.8471,
+    "fog_high": {
+      "mAP50": 0.0711,
+      "nonnominal_fraction": 0.99
+    },
+    "low_light_high": {
+      "mAP50": 0.6887,
+      "nominal_fraction": 0.9767
+    },
+    "all_within_latency_budget": true
+  },
+  "gating": {
+    "scenarios_pass": "7/7 (results/gating_tests.csv)",
+    "tests_total": 88
+  }
+}
