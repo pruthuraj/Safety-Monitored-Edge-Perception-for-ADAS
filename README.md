@@ -8,6 +8,12 @@ Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI, TensorRT FP1
 
 *KITTI → BDD night/rain/fog sequence. Green = NOMINAL, orange = DEGRADED, red = FAIL_SAFE_REQUEST. Illustrative only — all metrics come from the CSV artifacts below. Full video: `demo/monitor_overlay.mp4`.*
 
+## Motivation
+
+Two earlier threads collided into this project. I first stumbled on YOLO while doing an IoT seminar research project — that's where real-time object detection on constrained edge hardware stopped being an abstraction and became something I wanted to actually run. Separately, working on an ECG digital-twin project is where I started taking *safety* seriously as an engineering discipline: a model that is usually right isn't enough when being wrong has consequences; you have to reason about *when the model should not be trusted*, and make that failure observable.
+
+This repo is the deliberate intersection of the two — an edge-ML detector wrapped in that safety mindset. The point was never to maximize mAP; it was to build the runtime evidence and the argument for when the perception stack should not be trusted. The documented low-light blind spot below is that instinct paying off: the interesting result is not that the monitor works, but that the campaign found and recorded where it doesn't.
+
 ## Architecture
 
 ```mermaid
