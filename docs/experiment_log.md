@@ -175,3 +175,14 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** Clean subset mAP50 0.8471, 98.3% NOMINAL. Monitor tracks severe degradation: **fog:high mAP50 0.071 → 99% flagged non-NOMINAL**; blur:high 0.251 → 78% FSR; noise:high 0.365 → 77% FSR. **Blind spot found and documented: low_light:high mAP50 0.689 (−19%) with monitor 97.7% NOMINAL**; dead_pixels:medium similar — frame-level max-confidence misses silent recall erosion. All 16 conditions within 40 ms p95 budget (max 31.2 ms). Evidence: `results/fault_injection_metrics.csv`, `results/fault_injection_monitor_log.csv` (4800 rows), `results/fault_injection_summary.json`, `results/fault_injection_curves.png`. SR-01..SR-06 all **verified** per `safety/verification_report.md` with explicit limitations.
 - **Limitation:** Corruptions are plausibility models, not physics-validated (fog = uniform haze). Low-light blind spot is a documented SOTIF unknown-unsafe residual; candidate mitigations (detection-count plausibility, temporal checks, Mahalanobis) out of MVP scope. Standalone AP implementation not comparable to ultralytics numbers across tools.
 - **Next step:** Week 8 — GSN safety case + SOTIF argument consuming EXP-006..010 evidence; ISO/PAS 8800 alignment table.
+
+### EXP-011 — Safety case, SOTIF argument, ISO/PAS 8800 mapping
+- **Date:** 2026-07-17
+- **Week:** 8
+- **What changed:** Wrote `safety/safety_case.md` (bounded top claim G1, five sub-goals, residual-risk register), `safety/gsn.mmd` + rendered `safety/gsn.svg` (GSN one-pager with context/strategy/solution/residual nodes), `safety/sotif_argument.md` (known/unknown-safe/unsafe quadrants; two triggering-condition campaigns; low-light residual moved unknown→known-unsafe), `safety/iso_pas_8800_mapping.md` (11 lifecycle themes, alignment-not-compliance, explicit gaps column), `safety/evidence_index.csv` (24 claim→evidence→experiment→SR rows).
+- **Why:** Week 8 deliverable — package Weeks 1-7 evidence into a coherent, honestly-bounded safety argument.
+- **Command(s):** n/a (documentation; validation script checked evidence paths, SR coverage, forbidden-claim absence, low-light presence; Mermaid rendered via preview tool)
+- **Environment:** n/a
+- **Result:** All 24 evidence paths resolve; SR-01..06 each link to evidence; no unqualified "certified/ISO-compliant/proven safe" claims; low-light residual present in safety case, SOTIF argument, and mapping gaps; 88 tests still pass.
+- **Limitation:** Educational-depth safety case; no independent assessment; ISO/PAS 8800 mapped by public-domain theme names, standard text not licensed.
+- **Next step:** Week 9-10 — paper/report assets (`build_report_assets`), README final tables, CV/portfolio material.

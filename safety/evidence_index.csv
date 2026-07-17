@@ -1,0 +1,25 @@
+claim_id,claim,evidence_file,experiment,requirement
+E-01,Detector baseline in-ODD quality measured (val mAP50 0.8588; per-class AP),results/baseline_metrics.csv,EXP-003,SG-01
+E-02,TensorRT FP16 quantization delta measured (mAP50 -0.0024),results/baseline_metrics.csv,EXP-004,SG-01
+E-03,KITTI data validated and splits deterministic (7481/7481 labels; SHA-256 manifests),results/kitti_validation.json,EXP-002,SG-01
+E-04,Confidence calibration improves ECE (0.0812 -> 0.0390; T=0.6003),results/calibration_metrics.csv,EXP-006,SR-01
+E-05,Reliability diagram before/after temperature scaling,results/reliability_diagram.png,EXP-006,SR-01
+E-06,OOD separation per slice (night AUROC 0.982; FPR@95 0.112),results/ood_metrics.csv,EXP-007,SR-02
+E-07,Per-frame monitor scores ID vs BDD slices,results/monitor_scores_kitti_val.csv,EXP-007,SR-02
+E-08,BDD slice definitions deterministic with hashes,configs/splits/bdd_manifest.json,EXP-007,SR-02
+E-09,Q95/Q99 thresholds frozen from kitti-val only; primary score selected,results/monitor_thresholds.json,EXP-008,SR-02
+E-10,Risk-coverage: 94.8% ID coverage at Q95; night acceptance 6%,results/risk_coverage.csv,EXP-008,SR-02
+E-11,Gating transition scenarios deterministic 7/7 pass,results/gating_tests.csv,EXP-009,SR-03
+E-12,Fail-safe trigger paths verified (2xQ99; 10-frame persistence),results/gating_tests.csv,EXP-009,SR-04
+E-13,Per-frame runtime log complete (15/15 checks; 13 fields),results/monitor_log_check.csv,EXP-009,SR-05
+E-14,Runtime log 300 ID frames zero false transitions,results/runtime_monitor_log.csv,EXP-009,SR-03
+E-15,Full-loop latency within budget (TRT p95 17.20 ms; PyTorch 17.50 ms),results/monitor_latency_metrics.csv,EXP-009,SR-06
+E-16,Monitor response tracks severe corruption (fog:high 99% flagged at mAP50 0.071),results/fault_injection_metrics.csv,EXP-010,SR-02
+E-17,All 16 fault conditions within latency budget,results/fault_injection_metrics.csv,EXP-010,SR-06
+E-18,Low-light blind spot quantified (-19% mAP50 at 97.7% NOMINAL),results/fault_injection_summary.json,EXP-010,SR-02
+E-19,Per-frame fault-injection monitor log (4800 rows),results/fault_injection_monitor_log.csv,EXP-010,SR-05
+E-20,SR-by-SR verification narrative with limitations,safety/verification_report.md,EXP-010,SR-01;SR-02;SR-03;SR-04;SR-05;SR-06
+E-21,Hazards and UCAs drive requirements (H/UCA/CS/LS derivation),safety/stpa_report.md,EXP-005,SG-01
+E-22,Worked ASIL-style derivation and safety goal,safety/hara_lite.md,EXP-005,SG-01
+E-23,Requirement-to-evidence traceability machine-readable,safety/traceability_matrix.csv,EXP-005,SR-01;SR-02;SR-03;SR-04;SR-05;SR-06
+E-24,Annotated demo of state transitions (illustrative only),demo/monitor_overlay.mp4,EXP-009,SR-03;SR-04

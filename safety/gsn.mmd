@@ -1,0 +1,54 @@
+flowchart TB
+    %% GSN-style safety case (shapes approximated in Mermaid):
+    %% G = goal, S = strategy, C = context, Sn = solution/evidence, R = residual
+
+    G1["G1 (top claim)<br/>Within the defined KITTI-like ODD and stated assumptions,<br/>the perception monitor provides evidence-backed detection of<br/>degraded perception conditions and requests degraded/fail-safe<br/>handling within the 40 ms budget"]
+
+    C1(["C1: ODD — daylight, clear weather,<br/>KITTI-like scenes (project_spec.md §2)"])
+    C2(["C2: Item boundary + assumptions<br/>A-01..A-09 (hara_lite.md §1, §5)"])
+    C3(["C3: Thresholds frozen from KITTI val<br/>only (monitor_thresholds.json, EXP-008)"])
+
+    G1 --- C1
+    G1 --- C2
+    G1 --- C3
+
+    S1{{"S1: Argue over hazard analysis,<br/>baseline evidence, runtime monitor,<br/>verification, and residual-risk management"}}
+    G1 --> S1
+
+    G2["G2: Hazards and unsafe control<br/>actions are identified and drive<br/>the safety requirements"]
+    G3["G3: Detector baseline quality<br/>in-ODD is measured and sufficient<br/>for monitored operation"]
+    G4["G4: Runtime monitor detects degraded<br/>conditions and requests fallback<br/>(SR-01..SR-05)"]
+    G5["G5: End-to-end latency meets the<br/>40 ms budget with monitor active<br/>(SR-06)"]
+    G6["G6: Requirements are verified with<br/>reproducible scripted evidence and<br/>full traceability"]
+
+    S1 --> G2
+    S1 --> G3
+    S1 --> G4
+    S1 --> G5
+    S1 --> G6
+
+    Sn1[["Sn1: HARA-lite + STPA<br/>(hara_lite.md, stpa_report.md,<br/>requirements.csv)"]]
+    Sn2[["Sn2: Baseline metrics — mAP50 0.859 val,<br/>TRT FP16 delta −0.002<br/>(baseline_metrics.csv, EXP-003/004)"]]
+    Sn3[["Sn3: Calibration ECE 0.081→0.039<br/>(calibration_metrics.csv, EXP-006)"]]
+    Sn4[["Sn4: OOD AUROC night 0.982, rain 0.876,<br/>fog 0.926; risk-coverage at Q95<br/>(ood_metrics.csv, risk_coverage.csv,<br/>EXP-007/008)"]]
+    Sn5[["Sn5: Gating 7/7 scenarios, zero false<br/>transitions on ID; logging 15/15 checks<br/>(gating_tests.csv, monitor_log_check.csv,<br/>EXP-009)"]]
+    Sn6[["Sn6: Latency p95 17.2 ms TRT /<br/>17.5 ms PyTorch, all fault conditions<br/>within budget (monitor_latency_metrics.csv,<br/>EXP-009/010)"]]
+    Sn7[["Sn7: Fault injection — fog:high 99%<br/>flagged as mAP collapses to 0.07<br/>(fault_injection_metrics.csv, EXP-010)"]]
+    Sn8[["Sn8: Verification report + traceability<br/>SR-01..06 verified<br/>(verification_report.md,<br/>traceability_matrix.csv)"]]
+
+    G2 --> Sn1
+    G3 --> Sn2
+    G4 --> Sn3
+    G4 --> Sn4
+    G4 --> Sn5
+    G4 --> Sn7
+    G5 --> Sn6
+    G6 --> Sn8
+
+    R1["R1 (residual risk)<br/>Low-light recall erosion (−19% mAP50)<br/>passes 97.7% NOMINAL — SOTIF<br/>unknown-unsafe residual; plus no<br/>closed-loop vehicle validation (A-03)"]
+    G1 -.-> R1
+    Sn7 -.-> R1
+
+    style G1 fill:#dbeafe,stroke:#1d4ed8
+    style R1 fill:#fee2e2,stroke:#b91c1c
+    style S1 fill:#fef9c3,stroke:#a16207
