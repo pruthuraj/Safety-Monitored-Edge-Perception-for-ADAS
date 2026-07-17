@@ -1,0 +1,9 @@
+date,experiment,slice,transfer_control,method,n_id,n_ood,auroc,fpr_at_95tpr,weights,conf_min,seed,command
+2026-07-17,EXP-007,bdd-clear-day,True,max_conf_score,561,500,0.7578,0.6239,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-clear-day,True,energy_score,561,500,0.7154,0.7273,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-night,False,max_conf_score,561,500,0.9819,0.1123,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-night,False,energy_score,561,500,0.9846,0.123,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-rain,False,max_conf_score,561,500,0.8759,0.5365,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-rain,False,energy_score,561,500,0.8639,0.6061,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-fog,False,max_conf_score,561,13,0.9262,0.4189,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood
+2026-07-17,EXP-007,bdd-fog,False,energy_score,561,13,0.8896,0.5918,runs\detect\baseline\weights\best.pt,0.05,42,scripts/evaluate_monitor.py --ood

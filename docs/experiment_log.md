@@ -105,17 +105,27 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Limitation:** Single scalar T over all classes/confidence ranges; per-class calibration not attempted. Correctness defined at IoU 0.50 same-class only. Calibration valid for kitti-val distribution; behavior under shift measured in EXP-007.
 - **Next step:** EXP-007 — BDD100K slices + OOD scoring (blocked on manual BDD100K download).
 
-### EXP-007 — BDD100K OOD slices + monitor scoring (SR-02) [IN PROGRESS — blocked on data]
-- **Date:** 2026-07-17 (implementation); run pending
+### EXP-007 — BDD100K OOD slices + monitor scoring (SR-02)
+- **Date:** 2026-07-17
 - **Week:** 4
-- **What changed:** Added `src/monitor/scoring.py` (frame-level max-confidence score `1-max(conf)`, post-NMS energy-style score = -logsumexp over top-10 detection-confidence logits — documented proxy, not raw-logit energy or Mahalanobis; rank-based AUROC; FPR@95) and `src/dataset/bdd100k_slices.py` (deterministic slice builder: bdd-clear-day / bdd-night / bdd-rain / bdd-fog, target 500/slice, seed 42, manifest with hashes). `scripts/evaluate_monitor.py --bdd-slices` / `--ood` wired.
+- **What changed:** Added `src/monitor/scoring.py` (frame-level max-confidence score `1-max(conf)`, post-NMS energy-style score = -logsumexp over top-10 detection-confidence logits — documented proxy, not raw-logit energy or Mahalanobis; rank-based AUROC; FPR@95) and `src/dataset/bdd100k_slices.py` (deterministic slice builder, seed 42, manifest with hashes). Acquired BDD100K 100k val (10,000 images): official mirror `dl.cv.ethz.ch` is offline (NXDOMAIN), so images came from HF `hirundo-io/bdd100k-validation-only` (single zip, official filenames/layout) and frame attributes from HF `dgural/bdd100k` `samples.json` (FiftyOne export of official val labels), converted via new `src/dataset/bdd_fiftyone_convert.py`. Label/image match verified 10000/10000, zero missing/extra.
 - **Why:** SR-02 — runtime OOD score flagging out-of-ODD inputs (mitigates CS-01/CS-04/UCA-MON-01/H-04/H-05).
 - **Command(s):**
   ```
-  python scripts/evaluate_monitor.py --bdd-slices   # pending data
-  python scripts/evaluate_monitor.py --ood          # pending data
+  python -m src.dataset.bdd_fiftyone_convert --samples <hf-cache>/samples.json --out data/raw/bdd100k/labels/bdd100k_labels_images_val.json
+  python -m src.dataset.bdd100k_slices --root data/raw/bdd100k --seed 42
+  python scripts/evaluate_monitor.py --ood
   ```
 - **Environment:** as EXP-006.
-- **Result:** Pending — `data/raw/bdd100k/` absent (requires manual download: 100k val images + detection labels JSON). Unit tests for scorers/slice-builder pass (part of 26 in `tests/test_monitor.py`).
-- **Limitation:** Energy-style score is a post-NMS confidence proxy; temperature scaling is monotonic per-detection so max-conf AUROC/FPR@95 identical raw vs calibrated.
-- **Next step:** Download BDD100K val (images + labels) → run both modes → fill results, slice counts/hashes in `docs/dataset_splits.md`, SR-02 traceability row.
+- **Result:** Slices (sampled/available): clear-day 500/1764, night 500/3929, rain 500/738, **fog 13/13**. ID = kitti-val calibration-report subset (561 imgs). AUROC / FPR@95:
+
+  | Slice | max-conf | energy |
+  |---|---|---|
+  | bdd-night | **0.982 / 0.112** | **0.985 / 0.123** |
+  | bdd-rain | 0.876 / 0.537 | 0.864 / 0.606 |
+  | bdd-fog (n=13) | 0.926 / 0.419 | 0.890 / 0.592 |
+  | bdd-clear-day (transfer control) | 0.758 / 0.624 | 0.715 / 0.727 |
+
+  Score distributions show large no-detection mass on night/rain (score spike at max) — detector fails silently on OOD, which is precisely the H-04 mechanism the monitor flags. SR-02 acceptance met (AUROC+FPR@95 per slice, both methods compared). Evidence: `results/ood_metrics.csv`, `results/monitor_scores_kitti_val.csv`, `results/monitor_scores_bdd100k.csv`, `results/ood_score_distributions.png`, `results/ood_roc_curves.png`.
+- **Limitation:** Fog slice n=13 (all available in official val) — metrics unstable, report-only. Clear-day transfer control shows AUROC ~0.72-0.76: KITTI→BDD camera/scene shift is detectable even in-ODD, so thresholds must come from KITTI val quantiles, not BDD separation. Energy score no better than max-conf baseline at this granularity (post-NMS proxy). Images/labels from HF mirrors, not the offline official server — provenance recorded in `docs/dataset_splits.md`.
+- **Next step:** Week 5-6 — Q95/Q99 thresholds from kitti-val score quantiles, state machine + gating (SR-03/SR-04), logging (SR-05), monitor latency overhead for SR-06.

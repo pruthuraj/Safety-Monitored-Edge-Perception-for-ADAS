@@ -1,0 +1,39 @@
+{
+  "seed": 42,
+  "target_per_slice": 500,
+  "label_source": "labels\\bdd100k_labels_images_val.json",
+  "total_val_frames": 10000,
+  "rules": {
+    "bdd-clear-day": {
+      "timeofday": "daytime",
+      "weather": "clear"
+    },
+    "bdd-night": {
+      "timeofday": "night"
+    },
+    "bdd-rain": {
+      "weather": "rainy"
+    },
+    "bdd-fog": {
+      "weather": "foggy"
+    }
+  },
+  "available": {
+    "bdd-clear-day": 1764,
+    "bdd-night": 3929,
+    "bdd-rain": 738,
+    "bdd-fog": 13
+  },
+  "counts": {
+    "bdd-clear-day": 500,
+    "bdd-night": 500,
+    "bdd-rain": 500,
+    "bdd-fog": 13
+  },
+  "sha256": {
+    "bdd-clear-day": "84a2388c821f64698ee1d0fa0a2b151ffbf409fb6ebcb834f615b307d697e0bf",
+    "bdd-night": "cd9663ac02f0961365c91bec9703d832f7f6309e7accd835a840d50f25a9ab1d",
+    "bdd-rain": "8bdb02d0b378445a464ffd4379430bc700f7f09ee2569ccdfc88a2542c7aa799",
+    "bdd-fog": "5b1b30e741abbc649613c6998aef14e51f951da141d916c998e8291b4f5ed68a"
+  }
+}

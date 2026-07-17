@@ -1,6 +1,6 @@
 # Dataset Split Notes
 
-Status: Week 4 — KITTI splits committed (EXP-002); kitti-val calibration subsets defined (EXP-006); BDD100K slice policy defined, awaiting local download (EXP-007).
+Status: Week 4 — KITTI splits committed (EXP-002); kitti-val calibration subsets defined (EXP-006); BDD100K slices built and committed (EXP-007).
 
 ## kitti-val calibration subsets (Week 4, EXP-006)
 
@@ -22,8 +22,21 @@ Status: Week 4 — KITTI splits committed (EXP-002); kitti-val calibration subse
 - **Rules:** `bdd-clear-day` = daytime+clear (transfer control); `bdd-night` = night;
   `bdd-rain` = rainy; `bdd-fog` = foggy. Target 500 images/slice, deterministic
   sample seed 42; if fewer available, all are used and the count recorded as a limitation.
-- **Status:** BDD100K not yet downloaded locally — exact counts, label-source file,
-  and slice hashes recorded here once `--bdd-slices` runs.
+- **Provenance (2026-07-17):** official mirror `dl.cv.ethz.ch` offline (NXDOMAIN).
+  Images: HF dataset `hirundo-io/bdd100k-validation-only` (`BDD100K Val from Hirundo.zip`,
+  574,910,510 bytes; official filenames, layout `bdd100k/images/100k/val/`, 10,000 jpgs).
+  Attributes: HF dataset `dgural/bdd100k` `samples.json` (FiftyOne export of official val
+  labels; weather/timeofday/scene Classifications), converted attributes-only via
+  `python -m src.dataset.bdd_fiftyone_convert`. Image↔label name match verified
+  10000/10000, zero missing/extra. Detection boxes not imported (not needed Week 4).
+- **Slice counts (sampled/available), seed 42:** clear-day 500/1764, night 500/3929,
+  rain 500/738, fog **13/13** (all available; official val fog is rare — limitation).
+  Attribute distribution matches published BDD100K val statistics (sanity check).
+- **Slice file SHA-256** (committed under `configs/splits/`, full hashes in `bdd_manifest.json`):
+  - bdd-clear-day: `84a2388c821f...`
+  - bdd-night: `cd9663ac02f0...`
+  - bdd-rain: `8bdb02d0b378...`
+  - bdd-fog: `5b1b30e741ab...`
 
 ## KITTI acquisition + split record (Week 2)
 
