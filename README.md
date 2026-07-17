@@ -2,7 +2,7 @@
 
 Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI) deployed via TensorRT FP16/INT8, supervised by a calibrated-confidence + OOD runtime monitor that gates output through `NOMINAL → DEGRADED → FAIL_SAFE_REQUEST` states — with STPA/HARA, GSN safety case, and full requirement-to-evidence traceability.
 
-> Status: Week 2 of 10 — baseline detector trained. See [PLAN.md](PLAN.md) for the execution plan and [docs/project_spec.md](docs/project_spec.md) for item definition, ODD, assumptions, and hazards.
+> Status: Week 3 of 10 — safety analysis complete: HARA-lite + STPA written, SR-01..SR-06 active ([safety/](safety/)). See [PLAN.md](PLAN.md) for the execution plan and [docs/project_spec.md](docs/project_spec.md) for item definition, ODD, assumptions, and hazards.
 
 ## Baseline results (EXP-003)
 

@@ -1,6 +1,6 @@
 # Project Specification — Safety-Monitored Edge Perception for ADAS
 
-Status: Week 1 deliverable. Living document; refined as weeks progress.
+Status: Week 1 deliverable; hazards and safety requirements finalized in Week 3 (EXP-005). Living document; refined as weeks progress.
 Authoritative plan: `../PLAN.md`.
 
 ## 1. Item Definition
@@ -36,7 +36,9 @@ Out-of-ODD conditions are exactly what the OOD monitor targets (Week 4: BDD100K 
 - **A-05** Edge target is RTX 3050 Ti (laptop); Jetson figures, if reported, are separate and optional.
 - **A-06** Single-frame perception: no temporal smoothing of detections in MVP (temporal plausibility is stretch).
 
-## 4. Hazards (initial, refined in Week 3 HARA-lite)
+## 4. Hazards (finalized in Week 3 HARA-lite)
+
+Authoritative hazard analysis: `../safety/hara_lite.md` (worked ASIL-style derivation for H-01, summary ratings for the rest) and `../safety/stpa_report.md` (losses, UCAs, causal scenarios). The table below is the summary view.
 
 | ID | Hazard | Consequence sketch |
 |---|---|---|
@@ -49,11 +51,11 @@ Out-of-ODD conditions are exactly what the OOD monitor targets (Week 4: BDD100K 
 
 H-01 within ODD and H-04 at ODD boundary are the primary hazards this project's monitor addresses.
 
-## 5. Safety Requirement Placeholders
+## 5. Safety Requirements (finalized Week 3)
 
-Initial `SR-xx` IDs. Formal derivation, wording, and acceptance criteria come from Week 3 STPA/HARA. Tracked in `../safety/requirements.csv`.
+`SR-01..SR-06` are active. Authoritative wording, `derived_from` (SG-01 → H/UCA/CS/LS references), verification methods, and acceptance criteria: `../safety/requirements.csv`. Derivation rationale: `../safety/stpa_report.md` §6. Status vs evidence: `../safety/traceability_matrix.csv`.
 
-| ID | Area (placeholder) |
+| ID | Area |
 |---|---|
 | SR-01 | Detection confidence shall be calibrated (post-hoc temperature scaling; ECE reported) |
 | SR-02 | Runtime OOD monitoring shall flag inputs outside the ODD |

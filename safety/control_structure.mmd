@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph env["Environment (out of scope)"]
+        road["Road / Objects<br/>(pedestrians, vehicles, cyclists)"]
+        driver["Driver"]
+    end
+
+    subgraph item["Item boundary — perception function"]
+        camera["Forward camera<br/>(KITTI-like mounting)"]
+        detector["YOLOv8n detector<br/>(PyTorch / TensorRT backend)"]
+        monitor["Runtime monitor<br/>(calibrated confidence + OOD score,<br/>state machine NOMINAL/DEGRADED/FAIL_SAFE_REQUEST)"]
+        log["Per-frame log<br/>(scores, thresholds, state, latency)"]
+    end
+
+    subgraph downstream["Downstream (simulated boundary)"]
+        planner["Planner / AEB logic<br/>(assumed to honor monitor states, A-03)"]
+        brake["Brake actuator boundary"]
+    end
+
+    road -->|"photons / scene"| camera
+    camera -->|"frames"| detector
+    detector -->|"detections + raw confidences"| monitor
+    monitor -->|"gated detections (CA-1)"| planner
+    monitor -->|"monitor state (CA-2)"| planner
+    monitor -->|"evidence records"| log
+    planner -->|"brake command (CA-3)"| brake
+    brake -->|"deceleration"| road
+    planner -->|"fallback notification (CA-4)"| driver
+    driver -->|"override / supervision"| planner
