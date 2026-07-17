@@ -4,6 +4,12 @@ First complete release. A camera-only pedestrian/vehicle/cyclist detector for an
 
 > Not certified, not ISO-compliant, not proven safe. An evidence-backed safety argument bounded to a defined KITTI-like ODD, with residual risks stated openly.
 
+## Why I built this
+
+Two earlier threads collided into this project. I first stumbled on YOLO while doing an IoT seminar research project — that's where real-time object detection on constrained edge hardware stopped being an abstraction and became something I wanted to actually run. Separately, working on an ECG digital-twin project is where I started taking *safety* seriously as an engineering discipline: a model that's usually right isn't enough when being wrong has consequences; you have to reason about when the model should not be trusted, and make that failure observable.
+
+This project is the deliberate intersection of those two. Take an edge-ML detector (the YOLO thread) and wrap it in the safety mindset (the digital-twin thread): don't just report accuracy, build the runtime evidence and the argument for *when the perception stack should not be trusted*. The low-light blind spot below is exactly that instinct paying off — the interesting result isn't that the monitor works, it's that the campaign found and documented where it doesn't.
+
 ## Headline results
 
 | | |
