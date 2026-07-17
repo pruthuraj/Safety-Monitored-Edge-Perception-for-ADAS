@@ -1,0 +1,3 @@
+date,experiment,backend,weights,n_frames,latency_ms_p50,latency_ms_p95,fps_mean,budget_ms,within_budget_p95,scope,threshold_source,command
+2026-07-17,EXP-009,tensorrt_fp16,runs\detect\baseline\weights\best.engine,300,14.61,17.2,67.9,40.0,True,predict + max_conf_score + state machine + log row (SR-06),"results/monitor_thresholds.json (EXP-008, kitti-val only)",scripts/run_demo.py
+2026-07-17,EXP-009,pytorch,runs\detect\baseline\weights\best.pt,300,15.68,17.5,63.1,40.0,True,predict + max_conf_score + state machine + log row (SR-06),"results/monitor_thresholds.json (EXP-008, kitti-val only)",scripts/run_demo.py --latency-only --weights runs\detect\baseline\weights\best.pt

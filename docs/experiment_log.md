@@ -144,3 +144,19 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** **Primary monitor score: `max_conf_score`** — energy proxy mean OOD AUROC 0.913 vs 0.928 (gain −0.015, below +0.01 materiality margin; simpler score wins per plan policy). Frozen thresholds (kitti-val report subset, 561 frames, seed 42): max-conf **Q95 = 0.1862, Q99 = 0.3728**; energy Q95 = −1.594, Q99 = −1.149 (`results/monitor_thresholds.json`). Risk-coverage (kitti-val): Q95 keeps 94.8% coverage at mAP50 0.854 (vs 0.850 full), recall ~0.90 flat. BDD coverage at frozen max-conf Q95: **night 6.0%** accepted, rain 36.0%, fog 23.1%, clear-day control 68.0% — monitor rejects the bulk of out-of-ODD frames while keeping ~95% of ID. Evidence: `results/risk_coverage.csv`, `results/risk_coverage.png`.
 - **Limitation:** Accepted-frame mAP50 does not rise much at lower coverage — frame-level max-conf ranks frames by easiest detection, not scene difficulty; the risk-removal value is OOD rejection, not ID mAP gain (stated honestly). BDD rows are coverage-only (attribute labels, no detection GT). Thresholds frozen against PyTorch-backend scores; re-check under TensorRT backend when gating is integrated.
 - **Next step:** Week 6 — state machine (`NOMINAL`/`DEGRADED`/`FAIL_SAFE_REQUEST`) on sustained Q95/Q99 breaches (SR-03/SR-04), per-frame logging (SR-05), monitor latency overhead (SR-06).
+
+### EXP-009 — Runtime gating, logging, latency, and demo
+- **Date:** 2026-07-17
+- **Week:** 6
+- **What changed:** Added `src/monitor/state_machine.py` (3-state gating: 3×Q95→DEGRADED, 2×Q99→FAIL_SAFE_REQUEST, 10 degraded frames→escalate, 5 clean→recover one level; strict `>` breach), `src/monitor/runtime.py` (RuntimeMonitor: predict + max_conf_score + frozen thresholds from EXP-008 + state machine + SR-05 log row; TRT engine default, PyTorch fallback), `scripts/run_demo.py` (gating scenario replay → gating_tests.csv, 300-frame latency+log run, annotated demo video). 15 new tests (`tests/test_state_machine.py`) incl. GPU integration (BDD-night must trip monitor). Fixed relative-weights path bug in RuntimeMonitor (resolve()).
+- **Why:** SR-03/SR-04 (sustained-breach gating, mitigates UCA-MON-01/02/04), SR-05 (evidence logging, CS-06/CS-07), SR-06 (monitor overhead in latency budget, CS-08).
+- **Command(s):**
+  ```
+  python scripts/run_demo.py
+  python scripts/run_demo.py --latency-only --weights runs/detect/baseline/weights/best.pt
+  python -m pytest tests/ -q
+  ```
+- **Environment:** as EXP-006; TensorRT 11.1.0.106 engine from EXP-004.
+- **Result:** Gating scenario replay **7/7 pass** (`results/gating_tests.csv`). 300-frame KITTI-val run: all NOMINAL, zero false transitions; log completeness **15/15 checks pass** (`results/runtime_monitor_log.csv`, `results/monitor_log_check.csv`). Latency incl. monitor+logging (`results/monitor_latency_metrics.csv`): **TRT FP16 p50 14.61 / p95 17.20 ms (67.9 FPS)**; **PyTorch p50 15.68 / p95 17.50 ms (63.1 FPS)** — both under the 40 ms budget; monitor overhead vs EXP-003/004 detector-only figures is negligible (within run-to-run variance). Demo `demo/monitor_overlay.mp4` (133 frames: KITTI→night→rain→fog): NOMINAL on KITTI, FAIL_SAFE_REQUEST on night (score 1.0, zero detections) — stills verified. Full suite **60 passed**.
+- **Limitation:** Demo is illustrative only, not a metric source. Gating policy constants (3/2/10/5) are engineering choices, not tuned on data; sensitivity unexplored. KITTI-val run produced no DEGRADED episodes (expected on ID data) — negative evidence only; OOD transition behavior evidenced via BDD-night integration test and demo.
+- **Next step:** Week 7 — synthetic corruptions of kitti-test slices, fault injection vs monitor response; Week 8 — safety case (GSN/SOTIF) consuming this evidence.

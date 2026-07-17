@@ -1,0 +1,8 @@
+date,experiment,scenario,n_frames,q95,q99,expected_final,actual_final,pass
+2026-07-17,EXP-009,single_q95_spike_no_transition,4,0.186212,0.3727595999999983,NOMINAL,NOMINAL,True
+2026-07-17,EXP-009,three_q95_breaches_enter_degraded,4,0.186212,0.3727595999999983,DEGRADED,DEGRADED,True
+2026-07-17,EXP-009,two_q99_breaches_enter_fail_safe,3,0.186212,0.3727595999999983,FAIL_SAFE_REQUEST,FAIL_SAFE_REQUEST,True
+2026-07-17,EXP-009,ten_degraded_frames_escalate,13,0.186212,0.3727595999999983,FAIL_SAFE_REQUEST,FAIL_SAFE_REQUEST,True
+2026-07-17,EXP-009,five_clean_recover_degraded_to_nominal,8,0.186212,0.3727595999999983,NOMINAL,NOMINAL,True
+2026-07-17,EXP-009,five_clean_recover_fail_safe_to_degraded,7,0.186212,0.3727595999999983,DEGRADED,DEGRADED,True
+2026-07-17,EXP-009,threshold_equality_is_clean,4,0.186212,0.3727595999999983,NOMINAL,NOMINAL,True

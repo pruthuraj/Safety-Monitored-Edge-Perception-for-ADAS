@@ -1,0 +1,16 @@
+check,expected,actual,pass
+one_row_per_frame,300,300,True
+no_missing_frame_id,0,0,True
+no_missing_image_path,0,0,True
+no_missing_timestamp,0,0,True
+no_missing_backend,0,0,True
+no_missing_n_detections,0,0,True
+no_missing_max_confidence,0,0,True
+no_missing_monitor_score,0,0,True
+no_missing_q95_threshold,0,0,True
+no_missing_q99_threshold,0,0,True
+no_missing_state_before,0,0,True
+no_missing_state_after,0,0,True
+no_missing_transition_reason,0,0,True
+no_missing_latency_ms,0,0,True
+max_confidence_empty_only_for_zero_detections,0,0,True
