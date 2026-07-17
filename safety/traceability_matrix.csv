@@ -1,6 +1,7 @@
 requirement_id,implementation,test,metric,result,evidence_file,status
-SR-01,TBD Week 4 (monitor/calibration module — temperature scaling),TBD Week 4 (calibration unit + metric tests),ECE before/after temperature scaling on kitti-val,TBD,results/calibration_metrics.csv,open
-SR-02,TBD Week 4 (monitor/scoring module — energy score + max-confidence baseline),TBD Week 4 (OOD scoring tests per slice),AUROC; FPR@95 per OOD slice vs baseline,TBD,results/ood_metrics.csv,open
+SR-01,src/monitor/calibration.py + scripts/evaluate_monitor.py --calibrate,tests/test_monitor.py (ECE known values; temperature fit/monotonicity; IoU matching TP/FP/dup/none),ECE before/after temperature scaling on kitti-val,T=0.6003; ECE 0.0812 -> 0.0390 on calibration-report subset (EXP-006),results/calibration_metrics.csv,partial
+
+SR-02,src/monitor/scoring.py + src/dataset/bdd100k_slices.py + scripts/evaluate_monitor.py --ood,tests/test_monitor.py (scorers incl. empty detections; AUROC/FPR@95; slice filters),AUROC; FPR@95 per OOD slice vs baseline,TBD (blocked on BDD100K download),results/ood_metrics.csv,open
 SR-03,TBD Week 5-6 (gating/state machine — sustained Q95 breach logic),TBD Week 5-6 (deterministic transition tests incl. single-frame spike rejection),deterministic transition tests pass,TBD,results/gating_tests.csv,open
 SR-04,TBD Week 5-6 (gating/state machine — sustained Q99 breach + prolonged-degraded escalation),TBD Week 5-6 (deterministic transition tests for both trigger paths),deterministic transition tests pass,TBD,results/gating_tests.csv,open
 SR-05,TBD Week 5-6 (gating/logging — per-frame machine-readable records),TBD Week 5-6 (log completeness test over full evaluation run),log completeness check (all required fields per frame),TBD,results/monitor_log_check.csv,open

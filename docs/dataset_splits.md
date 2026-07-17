@@ -1,6 +1,29 @@
 # Dataset Split Notes
 
-Status: Week 2 — KITTI splits generated and committed (EXP-002).
+Status: Week 4 — KITTI splits committed (EXP-002); kitti-val calibration subsets defined (EXP-006); BDD100K slice policy defined, awaiting local download (EXP-007).
+
+## kitti-val calibration subsets (Week 4, EXP-006)
+
+- **Rule:** `kitti-val` (1122 ids) split 50/50 into `calibration-fit` (561) and
+  `calibration-report` (561) by seeded shuffle (seed 42) of the sorted id list —
+  implemented in `scripts/evaluate_monitor.py::calib_subsets`, derived at runtime
+  from the committed `configs/splits/val.txt` (no separate files; deterministic).
+- **Roles:** temperature `T` fitted on `calibration-fit` only; ECE before/after and
+  OOD ID-set scoring use `calibration-report` only. `kitti-test` untouched.
+
+## BDD100K slice policy (Week 4, EXP-007)
+
+- **Source:** BDD100K val split — images `data/raw/bdd100k/images/100k/val/`,
+  detection labels JSON (frame-level `attributes.weather` / `attributes.timeofday`
+  per the [official format doc](https://github.com/ucbdrive/bdd100k/blob/master/doc/format.md)).
+  Labels used **only** for attribute filtering in Week 4 — no BDD boxes are evaluated.
+- **Builder:** `python -m src.dataset.bdd100k_slices --root data/raw/bdd100k --seed 42`
+  → committed slice lists `configs/splits/bdd-*.txt` + `bdd_manifest.json` (counts, hashes).
+- **Rules:** `bdd-clear-day` = daytime+clear (transfer control); `bdd-night` = night;
+  `bdd-rain` = rainy; `bdd-fog` = foggy. Target 500 images/slice, deterministic
+  sample seed 42; if fewer available, all are used and the count recorded as a limitation.
+- **Status:** BDD100K not yet downloaded locally — exact counts, label-source file,
+  and slice hashes recorded here once `--bdd-slices` runs.
 
 ## KITTI acquisition + split record (Week 2)
 

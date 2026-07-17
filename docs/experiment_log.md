@@ -89,3 +89,33 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** `safety/hara_lite.md`, `safety/stpa_report.md`, `safety/control_structure.mmd`, `safety/requirements.csv` (6/6 active), `safety/traceability_matrix.csv` (SR-06 partial, rest open with planned evidence paths). All H-01..H-06 map to ≥1 requirement or explicit boundary assumption; CS-09 (planner ignores states) carried as assumption A-03, not a requirement.
 - **Limitation:** HARA-lite ratings are educational/illustrative, not calibrated against field data; only H-01 worked in full. No new runtime evidence — SR-01..SR-05 verification lands Weeks 4-6.
 - **Next step:** Week 4 — temperature-scaling calibration (SR-01) and energy-score OOD monitoring with BDD100K slices (SR-02).
+
+### EXP-006 — Confidence calibration via temperature scaling (SR-01)
+- **Date:** 2026-07-17
+- **Week:** 4
+- **What changed:** Added `src/monitor/calibration.py` (ECE, 15-bin reliability, greedy one-to-one IoU>=0.50 same-class GT matching, scalar temperature fit via golden-section on binary NLL) and `scripts/evaluate_monitor.py --calibrate`. kitti-val split 50/50 (seed 42) into calibration-fit (561 imgs) / calibration-report (561 imgs); detections collected at conf>=0.05, imgsz 640. 26 new unit tests in `tests/test_monitor.py`.
+- **Why:** SR-01 — detection confidences must be calibrated so monitor thresholds correspond to actual reliability (mitigates CS-02/UCA-DET-03/H-04).
+- **Command(s):**
+  ```
+  python scripts/evaluate_monitor.py --calibrate
+  # seed 42, conf_min 0.05, iou_thr 0.50, n_bins 15, weights runs/detect/baseline/weights/best.pt
+  ```
+- **Environment:** Python 3.11.3, torch 2.7.1+cu118, ultralytics 8.4.93, RTX 3050 Ti Laptop 4 GB, Windows 11.
+- **Result:** Fitted **T = 0.6003** (model underconfident — accuracy above diagonal pre-scaling; T<1 sharpens). **ECE 0.0812 → 0.0390** on calibration-report subset (5724 detections; fit on 5423). SR-01 acceptance met (calibrated ECE improves). Evidence: `results/calibration_metrics.csv`, `results/calibration_params.json`, `results/reliability_diagram.png`.
+- **Limitation:** Single scalar T over all classes/confidence ranges; per-class calibration not attempted. Correctness defined at IoU 0.50 same-class only. Calibration valid for kitti-val distribution; behavior under shift measured in EXP-007.
+- **Next step:** EXP-007 — BDD100K slices + OOD scoring (blocked on manual BDD100K download).
+
+### EXP-007 — BDD100K OOD slices + monitor scoring (SR-02) [IN PROGRESS — blocked on data]
+- **Date:** 2026-07-17 (implementation); run pending
+- **Week:** 4
+- **What changed:** Added `src/monitor/scoring.py` (frame-level max-confidence score `1-max(conf)`, post-NMS energy-style score = -logsumexp over top-10 detection-confidence logits — documented proxy, not raw-logit energy or Mahalanobis; rank-based AUROC; FPR@95) and `src/dataset/bdd100k_slices.py` (deterministic slice builder: bdd-clear-day / bdd-night / bdd-rain / bdd-fog, target 500/slice, seed 42, manifest with hashes). `scripts/evaluate_monitor.py --bdd-slices` / `--ood` wired.
+- **Why:** SR-02 — runtime OOD score flagging out-of-ODD inputs (mitigates CS-01/CS-04/UCA-MON-01/H-04/H-05).
+- **Command(s):**
+  ```
+  python scripts/evaluate_monitor.py --bdd-slices   # pending data
+  python scripts/evaluate_monitor.py --ood          # pending data
+  ```
+- **Environment:** as EXP-006.
+- **Result:** Pending — `data/raw/bdd100k/` absent (requires manual download: 100k val images + detection labels JSON). Unit tests for scorers/slice-builder pass (part of 26 in `tests/test_monitor.py`).
+- **Limitation:** Energy-style score is a post-NMS confidence proxy; temperature scaling is monotonic per-detection so max-conf AUROC/FPR@95 identical raw vs calibrated.
+- **Next step:** Download BDD100K val (images + labels) → run both modes → fill results, slice counts/hashes in `docs/dataset_splits.md`, SR-02 traceability row.

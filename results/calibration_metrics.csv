@@ -1,0 +1,2 @@
+date,experiment,weights,imgsz,seed,conf_min,iou_thr,n_bins,fit_images,report_images,fit_detections,report_detections,temperature,ece_before,ece_after,predict_seconds,command
+2026-07-17,EXP-006,runs\detect\baseline\weights\best.pt,640,42,0.05,0.5,15,561,561,5423,5724,0.6003,0.0812,0.039,133.3,scripts/evaluate_monitor.py --calibrate

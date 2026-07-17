@@ -1,0 +1,23 @@
+{
+  "experiment": "EXP-006",
+  "date": "2026-07-17",
+  "temperature": 0.6003,
+  "seed": 42,
+  "n_bins": 15,
+  "iou_thr": 0.5,
+  "conf_min": 0.05,
+  "imgsz": 640,
+  "weights": "runs\\detect\\baseline\\weights\\best.pt",
+  "fit_images": 561,
+  "report_images": 561,
+  "fit_detections": 5423,
+  "report_detections": 5724,
+  "fit_ids_range": [
+    "000043",
+    "007420"
+  ],
+  "report_ids_range": [
+    "000009",
+    "007480"
+  ]
+}
