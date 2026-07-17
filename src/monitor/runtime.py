@@ -80,10 +80,14 @@ class RuntimeMonitor:
         self.machine = MonitorStateMachine(self.q95, self.q99)
         self._frame_no = 0
 
-    def process(self, image_path: Path) -> FrameResult:
-        """One frame through predict -> score -> state machine -> log row."""
+    def process(self, image, label: str | None = None) -> FrameResult:
+        """One frame through predict -> score -> state machine -> log row.
+
+        `image` is a filesystem path or an in-memory BGR ndarray (fault
+        injection); `label` overrides the logged image_path for ndarrays.
+        """
         t0 = time.perf_counter()
-        r = self.model.predict(image_path, imgsz=self.imgsz, conf=self.conf_min, verbose=False)[0]
+        r = self.model.predict(image, imgsz=self.imgsz, conf=self.conf_min, verbose=False)[0]
         confs = r.boxes.conf.cpu().numpy()
         score = max_conf_score(confs)
         transition = self.machine.step(score)
@@ -92,7 +96,7 @@ class RuntimeMonitor:
         self._frame_no += 1
         row = {
             "frame_id": self._frame_no,
-            "image_path": str(image_path),
+            "image_path": label if label is not None else str(image),
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "backend": self.backend,
             "n_detections": int(len(confs)),
