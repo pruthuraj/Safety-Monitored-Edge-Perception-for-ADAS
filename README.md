@@ -2,7 +2,7 @@
 
 Camera-only pedestrian/vehicle/cyclist detection (YOLOv8n on KITTI, TensorRT FP16) supervised by a runtime monitor that knows when *not* to trust itself: calibrated confidence + frame-level OOD score → frozen validation-only thresholds → `NOMINAL / DEGRADED / FAIL_SAFE_REQUEST` gating — wrapped in STPA/HARA-derived requirements, a GSN safety case, a SOTIF argument, and machine-readable requirement-to-evidence traceability.
 
-> Status: Week 9 of 10 — paper draft ([paper/main.md](paper/main.md)) + report assets generated. SR-01..06 verified; the headline honest result: the monitor flags **99%** of frames under severe synthetic fog (mAP50 0.847→0.071) but misses gradual low-light erosion (−19% mAP50 at 97.7% NOMINAL) — documented as SOTIF residual, not hidden.
+> Status: **Shipped** (10/10 weeks). Paper: [paper/main.pdf](paper/main.pdf) ([source](paper/main.md)). Demo: [demo/final_demo.mp4](demo/final_demo.mp4) (~72 s) · GIF below. Reproduce: [docs/final_reproduction.md](docs/final_reproduction.md). SR-01..06 verified; the headline honest result: the monitor flags **99%** of frames under severe synthetic fog (mAP50 0.847→0.071) but misses gradual low-light erosion (−19% mAP50 at 97.7% NOMINAL) — documented as a SOTIF residual, not hidden.
 
 ![Demo: monitor overlay](demo/monitor_overlay.gif)
 

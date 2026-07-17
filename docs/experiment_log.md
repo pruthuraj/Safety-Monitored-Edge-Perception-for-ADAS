@@ -201,3 +201,21 @@ Append-only. One entry per experiment/change. No result may appear in README/pap
 - **Result:** 14-point claims audit: every headline number in README/paper matches `report_summary.json` (which records its source CSV); no unqualified certified/ISO-compliant/proven-safe phrasing; all referenced files exist; 88 tests pass.
 - **Limitation:** Paper is a markdown draft — IEEE two-column PDF (`paper/main.pdf`) is Week 10 packaging. GIF is 4.9 MiB (README load weight). Claims audit is regex-based spot-check of headline numbers, not exhaustive.
 - **Next step:** Week 10 — 60-90 s demo cut, paper PDF, final environment freeze, CV bullet from real values.
+
+### EXP-013 — Final packaging and release
+- **Date:** 2026-07-17
+- **Week:** 10
+- **What changed:** Added `scripts/build_paper_pdf.py` (reportlab renderer for `paper/main.md` — Pandoc/LaTeX unavailable; markdown remains canonical text), `scripts/build_final_demo.py` (60-90 s `demo/final_demo.mp4` from overlay clip + title/metric/limitation/closing cards, all numbers read from `report_summary.json`), `scripts/audit_final_package.py` (release gate). Wrote `demo/demo_script.md`, `docs/final_reproduction.md`, `docs/cv_material.md` (canonical CV bullet). Added `reportlab>=4.2,<5` to requirements (packaging only). README → shipped status.
+- **Why:** Week 10 deliverable — package and audit EXP-003..012 evidence into a portfolio release; no new experiments.
+- **Command(s):**
+  ```
+  python scripts/build_report_assets.py
+  python scripts/build_paper_pdf.py
+  python scripts/build_final_demo.py
+  python scripts/audit_final_package.py
+  python -m pytest tests/ -q
+  ```
+- **Environment:** as prior; reportlab 4.5.1 for PDF.
+- **Result:** `paper/main.pdf` (4 pages, valid header/EOF), `demo/final_demo.mp4` (72.3 s, in 60-90 s window). **Audit PASSED**: 21 required files present, README links resolve, no unqualified certified/ISO-compliant/proven-safe claims, 6 headline metrics match `report_summary.json`, demo duration in range. 88 tests pass. Project shipped: 13 experiments (EXP-001..013), SR-01..06 verified, safety case + paper + demo complete.
+- **Limitation:** PDF via reportlab is single-column (not IEEE two-column); markdown is canonical per PLAN.md. Final demo silent (narration in `demo/demo_script.md` if voiced later). Everything remains bounded to the KITTI-like ODD; low-light residual and A-03 (untested planner) carried open.
+- **Next step:** none — 10-week plan complete.

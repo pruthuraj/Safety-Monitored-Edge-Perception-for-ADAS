@@ -14,3 +14,5 @@ pyyaml==6.0.3
 scikit-learn==1.8.0
 matplotlib==3.11.0
 tqdm==4.65.0
+# Week 10 packaging only (paper PDF render); not needed for experiments.
+reportlab>=4.2,<5
